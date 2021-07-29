@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"bytes"
 	"flag"
-	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -25,6 +24,7 @@ func main() {
 		TabIndent:  true,
 		FormatOnly: true,
 	}
+	imports.LocalPrefix = localPackage
 
 	processDir(targetPath, opts)
 }
@@ -67,7 +67,7 @@ func processData(src []byte, opts *imports.Options) ([]byte, error) {
 
 	res = removeImportEmptyLines(res)
 
-	res, err = imports.Process("", src, opts)
+	res, err = imports.Process("", res, opts)
 	if err != nil {
 		return nil, errors.Wrap(err, "imports.Process 2")
 	}
@@ -91,17 +91,14 @@ func removeImportEmptyLines(src []byte) []byte {
 		if importsStarted {
 			if !importsEnded {
 				if strings.TrimSpace(line) == "" {
-					fmt.Println("###### empty line")
 					continue
 				}
 				if strings.HasPrefix(line, ")") {
-					fmt.Println("### imports ended")
 					importsEnded = true
 				}
 			}
 		} else {
 			if strings.HasPrefix(line, "import (") {
-				fmt.Println("### imports started")
 				importsStarted = true
 			}
 		}
