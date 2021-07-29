@@ -6,7 +6,7 @@ build:
 	go build -o ${BIN_DIR}/smartimports ${PACKAGE}
 
 run:
-	go run ${PACKAGE} -v
+	go run ${PACKAGE}
 
 test:
 	go test ./...

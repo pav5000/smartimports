@@ -4,15 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"golang.org/x/tools/imports"
 )
-
-func getDefaultOpts() *imports.Options {
-	return &imports.Options{
-		TabIndent:  true,
-		FormatOnly: true,
-	}
-}
 
 func Test_processData_SeveralImportBlocksToOne(t *testing.T) {
 	src := `package main

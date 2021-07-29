@@ -28,10 +28,7 @@ func main() {
 
 	flag.Parse()
 
-	opts := &imports.Options{
-		TabIndent:  true,
-		FormatOnly: true,
-	}
+	opts := getDefaultOpts()
 	imports.LocalPrefix = localPackage
 
 	excludedPathsList := strings.Split(excludedPaths, ",")
@@ -54,15 +51,26 @@ func processDir(path string, opts *imports.Options, excludedPaths []string) erro
 		}
 		for _, excludedPath := range excludedPaths {
 			if strings.HasPrefix(path, excludedPath) {
-				fmt.Println("   skipped because matched this excluded path:", excludedPath)
+				if verbose {
+					fmt.Println("   skipped because matched this excluded path:", excludedPath)
+				}
 				return nil
 			}
 		}
 		if info.IsDir() {
+			if verbose {
+				fmt.Println("   skipped because it's a dir")
+			}
 			return nil
 		}
-		if !strings.HasSuffix(info.Name(), ".go") {
+		if strings.HasPrefix(info.Name(), ".") || !strings.HasSuffix(info.Name(), ".go") {
+			if verbose {
+				fmt.Println("   skipped because it's not a go file")
+			}
 			return nil
+		}
+		if verbose {
+			fmt.Println("   formatting")
 		}
 		return processFile(path, info, opts)
 	})
@@ -134,4 +142,13 @@ func removeImportEmptyLines(src []byte) []byte {
 	}
 
 	return w.Bytes()
+}
+
+func getDefaultOpts() *imports.Options {
+	return &imports.Options{
+		TabWidth:   8,
+		TabIndent:  true,
+		FormatOnly: true,
+		Comments:   true,
+	}
 }
