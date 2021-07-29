@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"flag"
+	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -13,12 +14,19 @@ import (
 	"golang.org/x/tools/imports"
 )
 
+var verbose bool
+
 func main() {
 	var targetPath string
 	var localPackage string
+	var excludedPaths string
 
 	flag.StringVar(&targetPath, "path", ".", "target path to apply smart goimports, can be a file or a directory")
 	flag.StringVar(&localPackage, "local", "", "put imports beginning with this string after 3rd-party packages; comma-separated list")
+	flag.StringVar(&excludedPaths, "exclude", "", "paths which should be excluded from processing; comma-separated list")
+	flag.BoolVar(&verbose, "v", false, "verbose output")
+
+	flag.Parse()
 
 	opts := &imports.Options{
 		TabIndent:  true,
@@ -26,11 +34,30 @@ func main() {
 	}
 	imports.LocalPrefix = localPackage
 
-	processDir(targetPath, opts)
+	excludedPathsList := strings.Split(excludedPaths, ",")
+	filteredExcludedPaths := make([]string, 0, len(excludedPathsList))
+	for _, path := range excludedPathsList {
+		path = strings.TrimSpace(path)
+		if path == "" {
+			continue
+		}
+		filteredExcludedPaths = append(filteredExcludedPaths, path)
+	}
+
+	processDir(targetPath, opts, filteredExcludedPaths)
 }
 
-func processDir(path string, opts *imports.Options) error {
+func processDir(path string, opts *imports.Options, excludedPaths []string) error {
 	return filepath.Walk(path, func(path string, info fs.FileInfo, err error) error {
+		if verbose {
+			fmt.Println("processing path", path)
+		}
+		for _, excludedPath := range excludedPaths {
+			if strings.HasPrefix(path, excludedPath) {
+				fmt.Println("   skipped because matched this excluded path:", excludedPath)
+				return nil
+			}
+		}
 		if info.IsDir() {
 			return nil
 		}

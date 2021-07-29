@@ -72,3 +72,36 @@ func main() {
 	assert.NoError(t, err)
 	assert.Equal(t, dst, string(res))
 }
+
+func Test_processData_SeparateStdlib(t *testing.T) {
+	src := `package main
+
+import (
+	"context"
+	"github.com/pkg/errors"
+	"os"
+)
+
+func main() {
+
+}
+`
+	dst := `package main
+
+import (
+	"context"
+	"os"
+
+	"github.com/pkg/errors"
+)
+
+func main() {
+
+}
+`
+
+	res, err := processData([]byte(src), getDefaultOpts())
+
+	assert.NoError(t, err)
+	assert.Equal(t, dst, string(res))
+}
