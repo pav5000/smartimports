@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"io/fs"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -41,7 +42,10 @@ func main() {
 		filteredExcludedPaths = append(filteredExcludedPaths, path)
 	}
 
-	processDir(targetPath, opts, filteredExcludedPaths)
+	err := processDir(targetPath, opts, filteredExcludedPaths)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func processDir(path string, opts *imports.Options, excludedPaths []string) error {
@@ -95,16 +99,11 @@ func processFile(filename string, info fs.FileInfo, opts *imports.Options) error
 }
 
 func processData(src []byte, opts *imports.Options) ([]byte, error) {
-	res, err := imports.Process("", src, opts)
-	if err != nil {
-		return nil, errors.Wrap(err, "imports.Process 1")
-	}
+	res := removeImportEmptyLines(src)
 
-	res = removeImportEmptyLines(res)
-
-	res, err = imports.Process("", res, opts)
+	res, err := imports.Process("", res, opts)
 	if err != nil {
-		return nil, errors.Wrap(err, "imports.Process 2")
+		return nil, errors.Wrap(err, "imports.Process")
 	}
 
 	return res, nil
