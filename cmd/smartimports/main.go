@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"bytes"
 	"flag"
 	"fmt"
@@ -115,7 +114,7 @@ func processData(src []byte, opts *imports.Options) ([]byte, error) {
 }
 
 func removeImportEmptyLines(src []byte) []byte {
-	r := bufio.NewReader(bytes.NewBuffer(src))
+	r := bytes.NewBuffer(src)
 	w := bytes.NewBuffer(make([]byte, 0, len(src)))
 
 	importsStarted := false
