@@ -97,3 +97,42 @@ func main() {
 	assert.NoError(t, err)
 	assert.Equal(t, dst, string(res))
 }
+
+func Test_processData_NonPreformattedImports_ShouldBeProcessedCorrectly(t *testing.T) {
+	src := `package main
+
+	import (
+	"context"
+  "os"
+
+		"github.com/pkg/errors"
+		   
+	"github.com/bradfitz/gomemcache"
+	"fmt"
+	)
+
+func main() {
+
+}
+`
+	dst := `package main
+
+import (
+	"context"
+	"fmt"
+	"os"
+
+	"github.com/bradfitz/gomemcache"
+	"github.com/pkg/errors"
+)
+
+func main() {
+
+}
+`
+
+	res, err := processData([]byte(src), getDefaultOpts())
+
+	assert.NoError(t, err)
+	assert.Equal(t, dst, string(res))
+}

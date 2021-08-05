@@ -41,7 +41,11 @@ func main() {
 		filteredExcludedPaths = append(filteredExcludedPaths, path)
 	}
 
-	processDir(targetPath, opts, filteredExcludedPaths)
+	err := processDir(targetPath, opts, filteredExcludedPaths)
+	if err != nil {
+		fmt.Println("error while formatting:", err.Error())
+		os.Exit(1)
+	}
 }
 
 func processDir(path string, opts *imports.Options, excludedPaths []string) error {
