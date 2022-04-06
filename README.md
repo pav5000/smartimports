@@ -31,9 +31,9 @@ import (
 
 # Installation
 
-For go 1.16: `go install github.com/pav5000/smartimports@latest`
+For go 1.16: `go install github.com/pav5000/smartimports/cmd/smartimports@latest`
 
-For earlier versions of go: `go get github.com/pav5000/smartimports`
+For earlier versions of go: `go get github.com/pav5000/smartimports/cmd/smartimports`
 
 # Usage
 
